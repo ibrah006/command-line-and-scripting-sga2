@@ -1,0 +1,6 @@
+john123@gmail.com
+alice@company.com
+john123@gmail.com
+tom@abc.com
+invalidemail.com
+user@site.org
