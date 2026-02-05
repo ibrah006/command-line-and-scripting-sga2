@@ -1,0 +1,10 @@
+Log Summary Report
+Date: 2026-02-05
+---------------------------
+Total log entries: 4
+INFO messages: 1
+WARNING messages: 1
+ERROR messages: 2
+
+Most Recent ERROR:
+2025-01-12 10:17:10 ERROR Network timeout
