@@ -7,7 +7,7 @@ if [ ! -r "emails.txt" ]; then
 fi
 
 # Regex for valid email: letters_and_digits@letters.com
-valid_regex='^[a-zA-Z0-9]\+@[a-zA-Z]\+\.com$'
+valid_regex='^[a-zA-Z0-9_]+@[a-zA-Z]+\.com$'
 
 # Extract valid email addresses
 grep -E "$valid_regex" emails.txt > valid.txt
