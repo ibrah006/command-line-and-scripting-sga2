@@ -23,8 +23,10 @@ fi
 echo "Files only in $dirA:"
 echo "-------------------"
 for file in "$dirA"/*; do
+    # Skip if not a regular file
+    [ ! -f "$file" ] && continue
     filename=$(basename "$file")
-    if [ ! -e "$dirB/$filename" ]; then
+    if [ ! -f "$dirB/$filename" ]; then
         echo "$filename"
     fi
 done
@@ -33,8 +35,9 @@ echo
 echo "Files only in $dirB:"
 echo "-------------------"
 for file in "$dirB"/*; do
+    [ ! -f "$file" ] && continue
     filename=$(basename "$file")
-    if [ ! -e "$dirA/$filename" ]; then
+    if [ ! -f "$dirA/$filename" ]; then
         echo "$filename"
     fi
 done
@@ -43,9 +46,10 @@ echo
 echo "Files present in BOTH directories but with different contents:"
 echo "-------------------------------------------------------------"
 for file in "$dirA"/*; do
+    [ ! -f "$file" ] && continue
     filename=$(basename "$file")
-    if [ -e "$dirB/$filename" ]; then
-        # Compare contents using cmp
+    if [ -f "$dirB/$filename" ]; then
+        # Compare contents using cmp silently
         if ! cmp -s "$dirA/$filename" "$dirB/$filename"; then
             echo "$filename"
         fi
