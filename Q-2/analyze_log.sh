@@ -26,31 +26,43 @@ if [ ! -s "$logfile" ]; then
     exit 1
 fi
 
+# Log format regex
+# YYYY-MM-DD HH:MM:SS LEVEL MESSAGE
+regex='^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} (INFO|WARNING|ERROR) .+'
+
+# Validate log format line by line
+line_no=0
+while IFS= read -r line; do
+    line_no=$((line_no + 1))
+    if [[ ! $line =~ $regex ]]; then
+        echo "Error: Invalid log format at line $line_no"
+        echo ">> $line"
+        exit 1
+    fi
+done < "$logfile"
+
 # Date for report file
-date_today=$(date +%Y-%m-%d)
-report="logsummary_${date_today}.txt"
+today=$(date +%Y-%m-%d)
+report="logsummary_${today}.txt"
 
-# 3. Count total log entries
+# 3. Count log entries
 total_entries=$(wc -l < "$logfile")
-
-# Count log levels
 info_count=$(grep -c " INFO " "$logfile")
 warning_count=$(grep -c " WARNING " "$logfile")
 error_count=$(grep -c " ERROR " "$logfile")
 
-# 4. Get most recent ERROR message
+# 4. Most recent ERROR message
 recent_error=$(grep " ERROR " "$logfile" | tail -n 1)
 
-# Handle case where no ERROR exists
 if [ -z "$recent_error" ]; then
     recent_error="No ERROR messages found."
 fi
 
-# 5. Generate report file
+# 5. Generate report
 {
     echo "Log Summary Report"
-    echo "Date: $date_today"
-    echo "-------------------------"
+    echo "Date: $today"
+    echo "---------------------------"
     echo "Total log entries: $total_entries"
     echo "INFO messages: $info_count"
     echo "WARNING messages: $warning_count"
@@ -60,6 +72,5 @@ fi
     echo "$recent_error"
 } > "$report"
 
-# Display summary to user
 echo "Log analysis completed successfully."
 echo "Report generated: $report"
