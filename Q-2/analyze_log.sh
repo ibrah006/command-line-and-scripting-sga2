@@ -1,38 +1,65 @@
 #!/bin/bash
 
-# Check argument count
+# 1. Check argument count
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <log_file>"
+    echo "Error: Exactly one log file must be provided."
     exit 1
 fi
 
 logfile="$1"
 
-# Check file existence
+# 2. Validate file existence
 if [ ! -e "$logfile" ]; then
     echo "Error: File does not exist."
     exit 1
 fi
 
-# Check readability
+# Validate readability
 if [ ! -r "$logfile" ]; then
     echo "Error: File is not readable."
     exit 1
 fi
 
-# Regex for log format
-# YYYY-MM-DD HH:MM:SS LEVEL MESSAGE
-regex='^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} (INFO|ERROR|WARNING) .+'
+# Validate non-empty file
+if [ ! -s "$logfile" ]; then
+    echo "Error: Log file is empty."
+    exit 1
+fi
 
-# Validate each line
-line_number=0
-while IFS= read -r line; do
-    line_number=$((line_number + 1))
-    if [[ ! $line =~ $regex ]]; then
-        echo "Error: Invalid log format at line $line_number"
-        echo ">> $line"
-        exit 1
-    fi
-done < "$logfile"
+# Date for report file
+date_today=$(date +%Y-%m-%d)
+report="logsummary_${date_today}.txt"
 
-echo "Log file format is valid."
+# 3. Count total log entries
+total_entries=$(wc -l < "$logfile")
+
+# Count log levels
+info_count=$(grep -c " INFO " "$logfile")
+warning_count=$(grep -c " WARNING " "$logfile")
+error_count=$(grep -c " ERROR " "$logfile")
+
+# 4. Get most recent ERROR message
+recent_error=$(grep " ERROR " "$logfile" | tail -n 1)
+
+# Handle case where no ERROR exists
+if [ -z "$recent_error" ]; then
+    recent_error="No ERROR messages found."
+fi
+
+# 5. Generate report file
+{
+    echo "Log Summary Report"
+    echo "Date: $date_today"
+    echo "-------------------------"
+    echo "Total log entries: $total_entries"
+    echo "INFO messages: $info_count"
+    echo "WARNING messages: $warning_count"
+    echo "ERROR messages: $error_count"
+    echo
+    echo "Most Recent ERROR:"
+    echo "$recent_error"
+} > "$report"
+
+# Display summary to user
+echo "Log analysis completed successfully."
+echo "Report generated: $report"
