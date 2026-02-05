@@ -1,0 +1,1 @@
+This is the sample input file created for Question 6 of the staff graded assignment 2 for modules 5-10
